@@ -1,9 +1,10 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { server } from '../../server';
+import { useSelector } from 'react-redux';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -11,6 +12,15 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
+
+  const { isAuthenticated } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+      window.location.reload();
+    }
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();

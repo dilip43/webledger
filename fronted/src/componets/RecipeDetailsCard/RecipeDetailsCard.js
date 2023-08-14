@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { server } from '../../server';
 
 const RecipeDetailsCard = () => {
   const { id } = useParams();
-  const apiKey = '982dda743c764e41b51375f5c601a61f';
   const [data, setData] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         axios
-          .get(`http://localhost:8000/api/v2/recipe/${id}`, { withCredentials: true })
+          .get(`${server}/recipe/${id}`, { withCredentials: true })
           .then((res) => setData(res.data))
           .catch((err) => console.log(err));
       } catch (error) {

@@ -1,42 +1,52 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { getAllUserRecipe } from '../../redux/actions/user';
+import { server } from '../../server';
 import RecipeCard from '../RecipeCard/RecipeCard';
-import { Link } from 'react-router-dom';
 
 const Favorites = () => {
-  const [data, setData] = useState([]);
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        axios
-          .get('http://localhost:8000/api/v2/user/favorites-recipe', { withCredentials: true })
-          .then((res) => {
-            setData(res.data.recipe);
-          })
-          .catch((err) => console.log(err));
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, []);
+  const { recipes } = useSelector((state) => state.user);
 
-  const handleLogout = () => {};
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (data) {
+    dispatch(getAllUserRecipe());
+  }, [recipes]);
+
+  const handleLogout = () => {
+    try {
+      axios
+        .get(`${server}/user/logout`, { withCredentials: true })
+        .then((res) => {
+          toast.success(res.data.message);
+          navigate('/login');
+        })
+        .catch((err) => console.log(err));
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (recipes) {
       if (searchQuery === '') {
-        setFilteredData(data);
+        setFilteredData(recipes);
       } else {
-        const filteredRecipes = data.filter((recipe) => recipe.title.toLowerCase().includes(searchQuery.toLowerCase()));
+        const filteredRecipes = recipes.filter((recipe) =>
+          recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
         setFilteredData(filteredRecipes);
       }
     }
-  }, [data, searchQuery]);
+  }, [recipes, searchQuery]);
 
   return (
     <>

@@ -110,7 +110,6 @@ router.delete('/delete-favorite-recipe/:id', isAuthenticated, async (req, res) =
   try {
     const userId = req.user._id;
     const { id } = req.params;
-    console.log(id);
 
     await User.updateOne(
       { _id: userId },
@@ -118,7 +117,45 @@ router.delete('/delete-favorite-recipe/:id', isAuthenticated, async (req, res) =
         $pull: { recipe: { id: id } },
       }
     );
-    res.status(200).json({ message: 'recipe removed' });
+
+    const recipe = await User.findById(req.user.id).select('recipe');
+
+    res.status(200).json({ message: 'recipe removed', recipe });
+  } catch (error) {
+    res.status(500).json({ message: 'Something went wrong!' });
+  }
+});
+
+router.get('/logout', async (req, res) => {
+  try {
+    res.cookie('token', null, {
+      expires: new Date(Date.now()),
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
+    res.status(201).json({
+      success: true,
+      message: 'Log out successful!',
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Something went wrong!' });
+  }
+});
+
+// load user
+router.get('/getuser', isAuthenticated, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      res.status(400).json({ message: "User doesn't exists" });
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Something went wrong!' });
   }

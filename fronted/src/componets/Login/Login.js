@@ -12,14 +12,14 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
 
-  //   const { isAuthenticated } = useSelector((state) => state.user);
+  const { isAuthenticated } = useSelector((state) => state.user);
 
-  //   useEffect(() => {
-  //     if (isAuthenticated) {
-  //       navigate('/dashboard');
-  //       window.location.reload();
-  //     }
-  //   });
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+      window.location.reload();
+    }
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();

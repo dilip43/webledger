@@ -1,34 +1,26 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { server } from '../../server';
+import { deleteUserRecipe } from '../../redux/actions/user';
+import { useDispatch } from 'react-redux';
 
 const RecipeCard = ({ data, favorite }) => {
-  console.log(data);
+  const dispatch = useDispatch();
+
   const addToFavourite = async () => {
     try {
-      await axios
-        .post('http://localhost:8000/api/v2/user/save-favorite-recipe', { data }, { withCredentials: true })
-        .then((res) => {
-          toast.success(res.data.message);
-        });
+      await axios.post(`${server}/user/save-favorite-recipe`, { data }, { withCredentials: true }).then((res) => {
+        toast.success(res.data.message);
+      });
     } catch (error) {
       console.log(error);
     }
   };
 
   const removeFromFavorite = async () => {
-    try {
-      await axios
-        .delete(`http://localhost:8000/api/v2/user/delete-favorite-recipe/${data.id}`, {
-          withCredentials: true,
-        })
-        .then((res) => {
-          toast.success(res.data.message);
-        });
-    } catch (error) {
-      console.log(error);
-    }
+    dispatch(deleteUserRecipe(data.id));
   };
 
   return (

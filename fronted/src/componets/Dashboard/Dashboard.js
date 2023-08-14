@@ -1,10 +1,14 @@
-import React, { useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import RecipeCard from '../RecipeCard/RecipeCard';
-import { AiOutlineSearch } from 'react-icons/ai';
 import axios from 'axios';
+import React, { useCallback, useState } from 'react';
+import { AiOutlineSearch } from 'react-icons/ai';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { server } from '../../server';
+import RecipeCard from '../RecipeCard/RecipeCard';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   const [searchData, setSearchData] = useState([]);
 
   const debounce = (func) => {
@@ -21,14 +25,26 @@ const Dashboard = () => {
 
   const handleChange = (searchTerm) => {
     axios
-      .get(`http://localhost:8000/api/v2/recipe/?query=${searchTerm}`, { withCredentials: true })
+      .get(`${server}/recipe/?query=${searchTerm}`, { withCredentials: true })
       .then((res) => setSearchData(res.data.results))
       .catch((err) => console.log(err));
   };
 
   const optimizedFn = useCallback(debounce(handleChange), []);
 
-  const handleLogout = () => {};
+  const handleLogout = () => {
+    try {
+      axios
+        .get(`${server}/user/logout`, { withCredentials: true })
+        .then((res) => {
+          toast.success(res.data.message);
+          navigate('/login');
+        })
+        .catch((err) => console.log(err));
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
   return (
     <>
