@@ -22,4 +22,10 @@ app.use('/test', (req, res) => {
   res.send('Hello world!');
 });
 
+const user = require('./controller/user');
+const recipe = require('./controller/recipe');
+
+app.use('/api/v2/user', user);
+app.use('/api/v2/recipe', recipe);
+
 module.exports = app;
