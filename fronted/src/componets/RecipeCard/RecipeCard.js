@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const RecipeCard = ({ data, favorite }) => {
   console.log(data);
   const addToFavourite = async () => {
     try {
-      await axios.post('http://localhost:8000/api/v2/user/save-favorite-recipe', { data }, { withCredentials: true });
+      await axios
+        .post('http://localhost:8000/api/v2/user/save-favorite-recipe', { data }, { withCredentials: true })
+        .then((res) => {
+          toast.success(res.data.message);
+        });
     } catch (error) {
       console.log(error);
     }
@@ -14,9 +19,13 @@ const RecipeCard = ({ data, favorite }) => {
 
   const removeFromFavorite = async () => {
     try {
-      await axios.delete(`http://localhost:8000/api/v2/user/delete-favorite-recipe/${data.id}`, {
-        withCredentials: true,
-      });
+      await axios
+        .delete(`http://localhost:8000/api/v2/user/delete-favorite-recipe/${data.id}`, {
+          withCredentials: true,
+        })
+        .then((res) => {
+          toast.success(res.data.message);
+        });
     } catch (error) {
       console.log(error);
     }

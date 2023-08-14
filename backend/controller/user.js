@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const { isAuthenticated } = require('../middleware/auth');
 
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
@@ -35,7 +36,6 @@ router.post('/register', async (req, res) => {
       .cookie('token', token, options)
       .json({ success: true, message: 'User created Successfuly Navigating to login page', user, token });
   } catch (err) {
-    console.log(err);
     res.status(500).json({ message: 'Something went wrong!' });
   }
 });
@@ -82,44 +82,45 @@ router.post('/login-user', async (req, res) => {
   }
 });
 
-router.post('/save-favorite-recipe', async (req, res) => {
+router.post('/save-favorite-recipe', isAuthenticated, async (req, res) => {
   try {
     const { id, title, image } = req.body.data;
-    const user = await User.findById('64d9c8bae0b7e290a3437ed1');
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+
+    const user = await User.findById(req.user.id);
+
     user.recipe.push({ id, title, image });
     await user.save();
-    res.status(201).json(user);
+
+    res.status(201).json({ message: 'recipe added' });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.get('/favorites-recipe', async (req, res) => {
+router.get('/favorites-recipe', isAuthenticated, async (req, res) => {
   try {
-    const recipe = await User.findById('64d9c8bae0b7e290a3437ed1').select('recipe');
+    const recipe = await User.findById(req.user.id).select('recipe');
     res.json(recipe);
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ message: 'Something went wrong!' });
   }
 });
 
-router.delete('/delete-favorite-recipe/:id', async (req, res) => {
+router.delete('/delete-favorite-recipe/:id', isAuthenticated, async (req, res) => {
   try {
+    const userId = req.user._id;
     const { id } = req.params;
     console.log(id);
 
     await User.updateOne(
-      { _id: '64d9c8bae0b7e290a3437ed1' },
+      { _id: userId },
       {
         $pull: { recipe: { id: id } },
       }
     );
+    res.status(200).json({ message: 'recipe removed' });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ message: 'Something went wrong!' });
   }
 });
 
